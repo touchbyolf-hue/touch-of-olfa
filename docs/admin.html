@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Touch by Olfa</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container admin-page">
+      <div class="topbar">
+        <div>
+          <h1>Touch by Olfa - Administration</h1>
+          <p id="storageStatus" class="storage-status">Base: chargement...</p>
+          <p id="adminStatusMessage" class="message"></p>
+        </div>
+        <button id="logoutBtn">Deconnexion</button>
+      </div>
+
+      <section class="card">
+        <h2>Ajouter un produit</h2>
+        <form id="productForm">
+          <label>Nom du produit</label>
+          <input type="text" name="name" placeholder="Nom du produit" />
+          <label>Prix</label>
+          <input type="number" name="price" placeholder="Prix" step="0.01" min="0" />
+          <label>Numero de telephone</label>
+          <input type="tel" name="phone" placeholder="Numero de telephone" />
+          <label>Image (optionnelle)</label>
+          <input type="file" name="image" accept="image/*" />
+          <button type="submit">Enregistrer</button>
+        </form>
+        <p id="formMessage" class="message"></p>
+      </section>
+
+      <section class="card">
+        <h2>Parametres du site</h2>
+        <form id="accountForm">
+          <label>Numero de telephone de la bannière</label>
+          <input type="tel" name="heroPhone" placeholder="+221 77 123 45 67" />
+          <label>Nouveau code PIN admin</label>
+          <input type="password" name="adminPin" placeholder="Entrez un nouveau code PIN" />
+          <button type="submit">Mettre a jour</button>
+        </form>
+        <p id="accountMessage" class="message"></p>
+      </section>
+
+      <section class="card">
+        <h2>Liste des produits</h2>
+        <div id="adminList" class="admin-list"></div>
+      </section>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>
