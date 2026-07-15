@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Touch by Olfa</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <button id="adminIcon" class="admin-access" type="button" aria-label="Accéder à l'administration" title="Accéder à l'administration">
+        <span class="admin-icon">A</span>
+      </button>
+      <div class="hero-content">
+        <p class="brand">Touch by Olfa</p>
+        <h1>Découvrez nos produits</h1>
+        <p>Galerie client élégante avec prix et contact direct.</p>
+        <p class="hero-phone">Tel. +221 77 123 45 67</p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card admin-login-section hidden" id="adminPinSection">
+        <h2>Accès admin</h2>
+        <form id="adminPinForm">
+          <label>Code PIN</label>
+          <input type="password" id="adminPinInput" name="pin" placeholder="Entrez le code PIN" required />
+          <button type="submit" class="submit-btn">Valider le PIN</button>
+          <p id="adminPinMessage" class="message"></p>
+        </form>
+      </section>
+
+      <section class="card admin-login-section hidden" id="adminLoginSection">
+        <h2>Connexion admin</h2>
+        <form id="mainLoginForm">
+          <label>Email admin</label>
+          <input type="email" name="email" placeholder="Email admin" required />
+          <label>Mot de passe</label>
+          <div class="password-wrap">
+            <input type="password" id="mainPasswordInput" name="password" placeholder="Mot de passe admin" required />
+          </div>
+          <button type="submit" class="submit-btn">Connexion admin</button>
+          <p id="adminLoginMessage" class="message"></p>
+        </form>
+      </section>
+
+      <section class="section">
+        <h2>Produits disponibles</h2>
+        <div id="gallery" class="gallery"></div>
+      </section>
+    </main>
+
+    <div id="imagePreviewOverlay" class="image-preview-overlay hidden">
+      <div class="image-preview-box">
+        <button id="closePreviewBtn" class="close-preview" aria-label="Fermer la prévisualisation">x</button>
+        <img id="previewImage" alt="Aperçu du produit" />
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

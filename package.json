@@ -1,0 +1,16 @@
+{
+  "name": "touch-by-olfa",
+  "version": "1.0.0",
+  "description": "Site de gestion de produits avec admin et galerie client",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "preview": "node preview.js 5001"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "express-session": "^1.5.0",
+    "firebase-admin": "^14.1.0"
+  }
+}
