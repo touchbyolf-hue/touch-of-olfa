@@ -4,8 +4,9 @@
   "description": "Site de gestion de produits avec admin et galerie client",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "preview": "node preview.js 5001"
+    "start": "node preview.js 5001",
+    "preview": "node preview.js 5001",
+    "build": "echo 'No build required for static Vercel deployment'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
