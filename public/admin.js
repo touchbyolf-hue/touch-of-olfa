@@ -49,7 +49,7 @@ async function loadAdminProducts() {
     <div class="admin-item">
       <div>
         <strong>${product.name || 'Produit sans nom'}</strong><br />
-        <span>${product.price ? `${Number(product.price).toLocaleString('fr-FR')} FCFA` : 'Prix non renseigné'}</span>
+        <span>${product.price ? `${Number(product.price).toLocaleString('fr-FR')} TND` : 'Prix non renseigné'}</span>
       </div>
       <button class="delete-btn" data-id="${product.id}">Supprimer</button>
     </div>

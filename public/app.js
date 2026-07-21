@@ -32,7 +32,7 @@ async function loadProducts() {
       const productName = product.name || 'Produit sans nom';
       const productImage = product.image || 'https://via.placeholder.com/300x260?text=Produit';
       const productPrice = product.price
-        ? `${Number(product.price).toLocaleString('fr-FR')} FCFA`
+        ? `${Number(product.price).toLocaleString('fr-FR')} TND`
         : 'Prix non renseigné';
       const phoneSection = product.phone ? `
         <p class="phone">Tel. <a href="tel:${product.phone}">${product.phone}</a></p>
