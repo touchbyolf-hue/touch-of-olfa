@@ -7,6 +7,7 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
+  updateDoc,
   doc,
   getDoc,
   setDoc,
@@ -22,6 +23,8 @@ const storageStatus = document.getElementById('storageStatus');
 const adminStatusMessage = document.getElementById('adminStatusMessage');
 const heroPhoneField = accountForm ? accountForm.querySelector('input[name="heroPhone"]') : null;
 const adminPinField = accountForm ? accountForm.querySelector('input[name="adminPin"]') : null;
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+let currentEditingProductId = null;
 
 function setAdminStatus(text) {
   if (!adminStatusMessage) return;
@@ -51,7 +54,10 @@ async function loadAdminProducts() {
         <strong>${product.name || 'Produit sans nom'}</strong><br />
         <span>${product.price ? `${Number(product.price).toLocaleString('fr-FR')} TND` : 'Prix non renseigné'}</span>
       </div>
-      <button class="delete-btn" data-id="${product.id}">Supprimer</button>
+      <div class="admin-item-actions">
+        <button class="edit-btn" data-id="${product.id}">Modifier</button>
+        <button class="delete-btn" data-id="${product.id}">Supprimer</button>
+      </div>
     </div>
   `).join('');
 }
@@ -67,6 +73,31 @@ async function loadAdminSettings() {
       adminPinField.placeholder = 'Entrez un nouveau code PIN';
     }
   }
+}
+
+function resetProductForm() {
+  if (!form) return;
+  form.reset();
+  currentEditingProductId = null;
+  const hiddenId = form.querySelector('input[name="productId"]');
+  if (hiddenId) hiddenId.value = '';
+  if (cancelEditBtn) cancelEditBtn.classList.add('hidden');
+  if (message) message.textContent = '';
+}
+
+function fillProductForm(product) {
+  if (!form) return;
+  const nameField = form.querySelector('input[name="name"]');
+  const priceField = form.querySelector('input[name="price"]');
+  const phoneField = form.querySelector('input[name="phone"]');
+  const idField = form.querySelector('input[name="productId"]');
+
+  if (nameField) nameField.value = product.name || '';
+  if (priceField) priceField.value = product.price || '';
+  if (phoneField) phoneField.value = product.phone || '';
+  if (idField) idField.value = product.id || '';
+  currentEditingProductId = product.id || null;
+  if (cancelEditBtn) cancelEditBtn.classList.remove('hidden');
 }
 
 function readImage(file) {
@@ -87,9 +118,10 @@ if (form) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const fileInput = form.querySelector('input[type="file"]');
+    const idField = form.querySelector('input[name="productId"]');
 
     if (!auth.currentUser) {
-      message.textContent = 'Vous devez être connecté en tant qu\'admin pour ajouter un produit.';
+      message.textContent = 'Vous devez être connecté en tant qu\'admin pour gérer un produit.';
       window.location.href = 'login.html';
       return;
     }
@@ -101,31 +133,59 @@ if (form) {
         price: form.querySelector('input[name="price"]').value.trim(),
         phone: form.querySelector('input[name="phone"]').value.trim(),
         image,
-        createdAt: serverTimestamp()
+        updatedAt: serverTimestamp()
       };
 
-      await addDoc(collection(db, 'products'), payload);
-      message.textContent = 'Produit ajouté avec succès.';
-      form.reset();
+      if (currentEditingProductId) {
+        await updateDoc(doc(db, 'products', currentEditingProductId), payload);
+        message.textContent = 'Produit modifié avec succès.';
+      } else {
+        payload.createdAt = serverTimestamp();
+        await addDoc(collection(db, 'products'), payload);
+        message.textContent = 'Produit ajouté avec succès.';
+      }
+
+      resetProductForm();
       loadAdminProducts();
     } catch (error) {
       const errorDetails = error?.message || error?.code || 'Erreur inconnue';
-      message.textContent = `Impossible d'ajouter le produit : ${errorDetails}`;
-      console.error('Ajout produit échoué', error);
+      message.textContent = `Impossible d'enregistrer le produit : ${errorDetails}`;
+      console.error('Enregistrement produit échoué', error);
     }
+  });
+}
+
+if (cancelEditBtn) {
+  cancelEditBtn.addEventListener('click', () => {
+    resetProductForm();
   });
 }
 
 if (adminList) {
   adminList.addEventListener('click', async (event) => {
     const id = event.target.dataset.id;
-    if (!id || !event.target.classList.contains('delete-btn')) return;
+    if (!id) return;
 
-    try {
-      await deleteDoc(doc(db, 'products', id));
-      loadAdminProducts();
-    } catch (error) {
-      console.error('Impossible de supprimer le produit.', error);
+    if (event.target.classList.contains('delete-btn')) {
+      try {
+        await deleteDoc(doc(db, 'products', id));
+        loadAdminProducts();
+      } catch (error) {
+        console.error('Impossible de supprimer le produit.', error);
+      }
+      return;
+    }
+
+    if (event.target.classList.contains('edit-btn')) {
+      try {
+        const productDoc = await getDoc(doc(db, 'products', id));
+        if (productDoc.exists()) {
+          fillProductForm({ id: productDoc.id, ...productDoc.data() });
+          message.textContent = 'Vous pouvez modifier les informations du produit.';
+        }
+      } catch (error) {
+        console.error('Impossible de charger le produit à modifier.', error);
+      }
     }
   });
 }

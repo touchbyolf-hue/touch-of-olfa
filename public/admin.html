@@ -18,17 +18,19 @@
       </div>
 
       <section class="card">
-        <h2>Ajouter un produit</h2>
+        <h2>Ajouter / modifier un produit</h2>
         <form id="productForm">
+          <input type="hidden" name="productId" />
           <label>Nom du produit</label>
           <input type="text" name="name" placeholder="Nom du produit" />
-          <label>Prix</label>
+          <label>Prix (TND)</label>
           <input type="number" name="price" placeholder="Prix" step="0.01" min="0" />
           <label>Numero de telephone</label>
           <input type="tel" name="phone" placeholder="Numero de telephone" />
           <label>Image (optionnelle)</label>
           <input type="file" name="image" accept="image/*" />
           <button type="submit">Enregistrer</button>
+          <button type="button" id="cancelEditBtn" class="hidden">Annuler</button>
         </form>
         <p id="formMessage" class="message"></p>
       </section>
