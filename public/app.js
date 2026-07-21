@@ -30,8 +30,25 @@ function toggleStoredItem(key, productId) {
 function updateInteractionSummary() {
   const cartCountEl = document.getElementById('cartCount');
   const favoriteCountEl = document.getElementById('favoriteCount');
+  const cartListEl = document.getElementById('cartList');
+  const favoriteListEl = document.getElementById('favoriteList');
+
   if (cartCountEl) cartCountEl.textContent = getStoredItems('cartProducts').length;
   if (favoriteCountEl) favoriteCountEl.textContent = getStoredItems('favoriteProducts').length;
+
+  if (cartListEl) {
+    const cartIds = getStoredItems('cartProducts');
+    cartListEl.innerHTML = cartIds.length
+      ? '<p>Vous pouvez voir vos articles ici.</p>'
+      : '<p>Aucun produit dans le panier.</p>';
+  }
+
+  if (favoriteListEl) {
+    const favoriteIds = getStoredItems('favoriteProducts');
+    favoriteListEl.innerHTML = favoriteIds.length
+      ? '<p>Vos produits favoris apparaissent ici.</p>'
+      : '<p>Aucun produit en favoris.</p>';
+  }
 }
 
 async function loadProducts() {
