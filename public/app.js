@@ -27,27 +27,70 @@ function toggleStoredItem(key, productId) {
   return nextItems;
 }
 
-function updateInteractionSummary() {
+function removeStoredItem(key, productId) {
+  const items = getStoredItems(key).filter((id) => id !== productId);
+  saveStoredItems(key, items);
+  return items;
+}
+
+function renderStoredItemsList(containerId, key, emptyMessage, productsMap) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const itemIds = getStoredItems(key);
+  const items = itemIds
+    .map((id) => productsMap[id])
+    .filter(Boolean);
+
+  if (!items.length) {
+    container.innerHTML = `<p>${emptyMessage}</p>`;
+    return;
+  }
+
+  const actionKey = key === 'cartProducts' ? 'removeCart' : 'removeFavorite';
+  const actionLabel = key === 'cartProducts' ? 'Retirer du panier' : 'Retirer des favoris';
+
+  container.innerHTML = items.map((product) => {
+    const productName = product.name || 'Produit sans nom';
+    const productImage = product.image || 'https://via.placeholder.com/120x100?text=Produit';
+    const productPrice = product.price
+      ? `${Number(product.price).toLocaleString('fr-FR')} TND`
+      : 'Prix non renseigné';
+
+    return `
+      <article class="collection-item">
+        <img src="${productImage}" alt="${productName}" />
+        <div class="collection-item-info">
+          <h3>${productName}</h3>
+          <p class="price">${productPrice}</p>
+        </div>
+        <button class="product-btn remove-btn" data-action="${actionKey}" data-product-id="${product.id}">
+          ${actionLabel}
+        </button>
+      </article>
+    `;
+  }).join('');
+}
+
+function updateInteractionSummary(products = []) {
   const cartCountEl = document.getElementById('cartCount');
   const favoriteCountEl = document.getElementById('favoriteCount');
   const cartListEl = document.getElementById('cartList');
   const favoriteListEl = document.getElementById('favoriteList');
 
+  const productsMap = Array.isArray(products)
+    ? Object.fromEntries(products.map((product) => [product.id, product]))
+    : {};
+
   if (cartCountEl) cartCountEl.textContent = getStoredItems('cartProducts').length;
   if (favoriteCountEl) favoriteCountEl.textContent = getStoredItems('favoriteProducts').length;
 
   if (cartListEl) {
-    const cartIds = getStoredItems('cartProducts');
-    cartListEl.innerHTML = cartIds.length
-      ? '<p>Vous pouvez voir vos articles ici.</p>'
-      : '<p>Aucun produit dans le panier.</p>';
+    renderStoredItemsList('cartList', 'cartProducts', 'Aucun produit dans le panier.', productsMap);
   }
 
   if (favoriteListEl) {
-    const favoriteIds = getStoredItems('favoriteProducts');
-    favoriteListEl.innerHTML = favoriteIds.length
-      ? '<p>Vos produits favoris apparaissent ici.</p>'
-      : '<p>Aucun produit en favoris.</p>';
+    renderStoredItemsList('favoriteList', 'favoriteProducts', 'Aucun produit en favoris.', productsMap);
   }
 }
 
@@ -69,6 +112,7 @@ async function loadProducts() {
 
     if (!products.length) {
       gallery.innerHTML = '<p>Aucun produit pour le moment.</p>';
+      updateInteractionSummary(products);
       return;
     }
 
@@ -107,7 +151,7 @@ async function loadProducts() {
       `;
     }).join('');
 
-    updateInteractionSummary();
+    updateInteractionSummary(products);
   } catch (error) {
     console.error('Erreur de chargement des produits Firebase :', error);
     showGalleryMessage(
@@ -131,7 +175,7 @@ function initImagePreview() {
     overlay.classList.remove('hidden');
   });
 
-  gallery.addEventListener('click', (event) => {
+  document.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-action]');
     if (!button) return;
     const productId = button.getAttribute('data-product-id');
@@ -142,6 +186,10 @@ function initImagePreview() {
       toggleStoredItem('cartProducts', productId);
     } else if (action === 'favorite') {
       toggleStoredItem('favoriteProducts', productId);
+    } else if (action === 'removeCart') {
+      removeStoredItem('cartProducts', productId);
+    } else if (action === 'removeFavorite') {
+      removeStoredItem('favoriteProducts', productId);
     }
 
     updateInteractionSummary();
@@ -188,6 +236,18 @@ async function loadHeroPhone() {
   } catch (error) {
     console.warn('Impossible de charger le numéro de téléphone de la bannière.', error);
   }
+}
+
+function initInteractionSummaryActions() {
+  document.querySelectorAll('.summary-pill[data-target]').forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const targetId = pill.getAttribute('data-target');
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
 }
 
 function initAdminLogin() {
@@ -251,6 +311,7 @@ function initAdminLogin() {
 Promise.all([loadProducts(), loadAdminPin()])
   .then(() => {
     initImagePreview();
+    initInteractionSummaryActions();
     return loadHeroPhone();
   })
   .catch((error) => {

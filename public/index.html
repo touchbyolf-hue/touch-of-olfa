@@ -17,8 +17,8 @@
         <p>Galerie client élégante avec prix et contact direct.</p>
         <p class="hero-phone">Tel. +221 77 123 45 67</p>
         <div class="interaction-summary">
-          <span class="summary-pill">Panier: <strong id="cartCount">0</strong></span>
-          <span class="summary-pill">Favoris: <strong id="favoriteCount">0</strong></span>
+          <span class="summary-pill" data-target="cartSection" role="button" tabindex="0">Panier: <strong id="cartCount">0</strong></span>
+          <span class="summary-pill" data-target="favoriteSection" role="button" tabindex="0">Favoris: <strong id="favoriteCount">0</strong></span>
         </div>
       </div>
     </header>
@@ -48,12 +48,12 @@
         </form>
       </section>
 
-      <section class="section">
+      <section class="section" id="cartSection">
         <h2>Panier</h2>
         <div id="cartList" class="collection-list"></div>
       </section>
 
-      <section class="section">
+      <section class="section" id="favoriteSection">
         <h2>Favoris</h2>
         <div id="favoriteList" class="collection-list"></div>
       </section>
