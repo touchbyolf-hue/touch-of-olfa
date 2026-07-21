@@ -7,6 +7,33 @@ function showGalleryMessage(text) {
   gallery.innerHTML = `<p>${text}</p>`;
 }
 
+function getStoredItems(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveStoredItems(key, items) {
+  localStorage.setItem(key, JSON.stringify(items));
+}
+
+function toggleStoredItem(key, productId) {
+  const items = getStoredItems(key);
+  const exists = items.includes(productId);
+  const nextItems = exists ? items.filter((id) => id !== productId) : [...items, productId];
+  saveStoredItems(key, nextItems);
+  return nextItems;
+}
+
+function updateInteractionSummary() {
+  const cartCountEl = document.getElementById('cartCount');
+  const favoriteCountEl = document.getElementById('favoriteCount');
+  if (cartCountEl) cartCountEl.textContent = getStoredItems('cartProducts').length;
+  if (favoriteCountEl) favoriteCountEl.textContent = getStoredItems('favoriteProducts').length;
+}
+
 async function loadProducts() {
   const gallery = document.getElementById('gallery');
   if (!gallery) return;
@@ -34,11 +61,10 @@ async function loadProducts() {
       const productPrice = product.price
         ? `${Number(product.price).toLocaleString('fr-FR')} TND`
         : 'Prix non renseigné';
+      const isInCart = getStoredItems('cartProducts').includes(product.id);
+      const isFavorite = getStoredItems('favoriteProducts').includes(product.id);
       const phoneSection = product.phone ? `
         <p class="phone">Tel. <a href="tel:${product.phone}">${product.phone}</a></p>
-        <div class="product-actions">
-          <a href="tel:${product.phone}" class="product-btn">Appeler</a>
-        </div>
       ` : '';
 
       return `
@@ -50,10 +76,21 @@ async function loadProducts() {
             <h3>${productName}</h3>
             <p class="price">${productPrice}</p>
             ${phoneSection}
+            <div class="product-actions">
+              <button class="product-btn cart-btn" data-action="cart" data-product-id="${product.id}">
+                ${isInCart ? 'Retirer du panier' : 'Ajouter au panier'}
+              </button>
+              <button class="product-btn favorite-btn" data-action="favorite" data-product-id="${product.id}">
+                ${isFavorite ? '★ Favori' : '☆ Favori'}
+              </button>
+              ${product.phone ? `<a href="tel:${product.phone}" class="product-btn">Appeler</a>` : ''}
+            </div>
           </div>
         </article>
       `;
     }).join('');
+
+    updateInteractionSummary();
   } catch (error) {
     console.error('Erreur de chargement des produits Firebase :', error);
     showGalleryMessage(
@@ -75,6 +112,23 @@ function initImagePreview() {
     if (!img) return;
     previewImage.src = img.getAttribute('data-preview');
     overlay.classList.remove('hidden');
+  });
+
+  gallery.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    const productId = button.getAttribute('data-product-id');
+    const action = button.getAttribute('data-action');
+    if (!productId) return;
+
+    if (action === 'cart') {
+      toggleStoredItem('cartProducts', productId);
+    } else if (action === 'favorite') {
+      toggleStoredItem('favoriteProducts', productId);
+    }
+
+    updateInteractionSummary();
+    loadProducts();
   });
 
   if (closePreviewBtn) {
